@@ -25,9 +25,10 @@ export async function GET(request: Request) {
     cache.set(cacheKey, data)
     return NextResponse.json(data)
   } catch (error) {
+    console.error('Erreur API:', error)
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des données' },
       { status: 500 }
     )
   }
-} 
+}

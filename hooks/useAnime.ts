@@ -15,7 +15,7 @@ export function useAnime(season: string, year: number) {
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const fetchStreamingDataBatch = async (animeList: any[]) => {
+  const fetchStreamingDataBatch = async (animeList: Anime[]) => {
     const results = [];
 
     for (let i = 0; i < animeList.length; i += BATCH_SIZE) {

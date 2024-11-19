@@ -8,10 +8,6 @@ interface AnimeDetailsProps {
   onClose: () => void
 }
 
-function formatDay(day: string): string {
-  return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
-}
-
 function getStatusText(status: string): string {
   const statusMap: Record<string, string> = {
     'finished': 'Finished',

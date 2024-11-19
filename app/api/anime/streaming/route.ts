@@ -107,7 +107,7 @@ export async function GET(request: Request) {
         )
 
       streamingEpisodes.forEach((episode: any) => {
-        if (!result.streaming.some(s => s.name === episode.site)) {
+        if (!result.streaming.some((s: any) => s.name === episode.site)) {
           result.streaming.push({
             name: episode.site,
             url: episode.url,
@@ -117,16 +117,11 @@ export async function GET(request: Request) {
       })
     }
 
-    console.log(`Streaming data for ${cleanTitle}:`, {
-      rawLinks: data.data?.Media?.externalLinks,
-      filteredStreaming: result.streaming
-    })
-
     cache.set(cacheKey, result)
     return NextResponse.json(result)
   } catch (error) {
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération des données' },
+      { error: `Erreur lors de la récupération des données: ${error}` },
       { status: 500 }
     )
   }

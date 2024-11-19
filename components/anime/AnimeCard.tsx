@@ -18,10 +18,6 @@ export function AnimeCard({ anime }: AnimeCardProps) {
     setIsDetailsOpen(true)
   }
 
-  const formatDay = (day: string) => {
-    return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
-  }
-
   const getStreamingColor = (name: string) => {
     switch (name.toLowerCase()) {
       case 'crunchyroll':
