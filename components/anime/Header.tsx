@@ -1,12 +1,4 @@
-import { Moon, Sun } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-
-interface HeaderProps {
-  isDarkMode: boolean
-  onToggleTheme: () => void
-}
-
-export function Header({ isDarkMode, onToggleTheme }: HeaderProps) {
+export function Header() {
   return (
     <header className="flex justify-between items-center mb-8">
       <div className="flex items-center">
@@ -32,9 +24,6 @@ export function Header({ isDarkMode, onToggleTheme }: HeaderProps) {
           Seasonal Anime
         </h1>
       </div>
-      <Button variant="ghost" size="icon" onClick={onToggleTheme}>
-        {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-      </Button>
     </header>
   )
-} 
+}

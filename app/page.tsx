@@ -8,17 +8,13 @@ import { useAnime } from '@/hooks/useAnime'
 import { getCurrentSeason } from '@/lib/utils'
 
 export default function SeasonalAnimePage() {
-  const [isDarkMode, setIsDarkMode] = useState(false)
   const [season, setSeason] = useState(getCurrentSeason())
   const [year, setYear] = useState(new Date().getFullYear())
   const { animeList, isLoading, error } = useAnime(season, year)
 
   return (
     <div className="container mx-auto p-4">
-      <Header
-        isDarkMode={isDarkMode}
-        onToggleTheme={() => setIsDarkMode(!isDarkMode)}
-      />
+      <Header />
       <SeasonSelector
         season={season}
         year={year}
