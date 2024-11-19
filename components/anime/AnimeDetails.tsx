@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Anime } from "@/types/anime"
+import Image from 'next/image'
 
 interface AnimeDetailsProps {
   anime: Anime
@@ -37,10 +38,13 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
           Détails de {anime.title}
         </DialogTitle>
         <div className="relative h-[50vh] lg:h-[60vh] overflow-hidden">
-          <img
+          <Image
             src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
             alt={anime.title}
             className="w-full h-full object-cover object-center filter brightness-90 blur-[2px] scale-105 transition-all duration-300"
+            width={500}
+            height={300}
+            style={{ objectFit: 'cover' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(0,0,0,0.95),transparent_70%)]" />

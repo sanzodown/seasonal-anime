@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Anime } from "@/types/anime"
 import { VideoPlayer } from './VideoPlayer'
 import { AnimeDetails } from './AnimeDetails'
+import Image from 'next/image'
 
 interface AnimeCardProps {
   anime: Anime
@@ -54,11 +55,14 @@ export function AnimeCard({ anime }: AnimeCardProps) {
         onContextMenu={handleContextMenu}
       >
         <div className="absolute inset-0 overflow-hidden">
-          <img
+          <Image
             src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
             alt={anime.title}
             className="w-full h-full object-cover transition-all duration-300 scale-[1.15] group-hover:scale-100 group-hover:blur-[5px]"
             loading="lazy"
+            width={500}
+            height={300}
+            style={{ objectFit: 'cover' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
           <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

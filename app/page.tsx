@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Header } from '@/components/anime/Header'
 import { SeasonSelector } from '@/components/anime/SeasonSelector'
 import { AnimeGrid } from '@/components/anime/AnimeGrid'
