@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Anime } from '@/types/anime'
 
 const BATCH_SIZE = 8;
 const BATCH_DELAY = 300;
 const CACHE = new Map<string, { data: Anime[], timestamp: number }>();
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CACHE_DURATION = 10 * 60 * 1000;
 
 export function useAnime(season: string, year: number) {
   const [animeList, setAnimeList] = useState<Anime[]>([])
@@ -15,7 +15,7 @@ export function useAnime(season: string, year: number) {
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const fetchStreamingDataBatch = async (animeList: Anime[]) => {
+  const fetchStreamingDataBatch = useCallback(async (animeList: Anime[]) => {
     const results = [];
 
     for (let i = 0; i < animeList.length; i += BATCH_SIZE) {
@@ -24,11 +24,7 @@ export function useAnime(season: string, year: number) {
         batch.map(async (anime) => {
           try {
             const response = await fetch(`/api/anime/streaming?title=${encodeURIComponent(anime.title)}`);
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             return {
               ...anime,
@@ -49,13 +45,19 @@ export function useAnime(season: string, year: number) {
     }
 
     return results;
-  };
+  }, []);
 
-  const fetchAnime = async () => {
+  const fetchAnime = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
-    // Vérifier le cache côté client
+    // Nettoyer le cache précédent si nécessaire
+    CACHE.forEach((value, key) => {
+      if (Date.now() - value.timestamp > CACHE_DURATION) {
+        CACHE.delete(key);
+      }
+    });
+
     const cached = CACHE.get(cacheKey);
     const now = Date.now();
 
@@ -73,7 +75,6 @@ export function useAnime(season: string, year: number) {
       const tvAnime = data.data?.filter((anime: any) => anime.type === 'TV') || [];
       const animeWithStreaming = await fetchStreamingDataBatch(tvAnime);
 
-      // Mettre en cache les résultats
       CACHE.set(cacheKey, {
         data: animeWithStreaming,
         timestamp: now
@@ -85,13 +86,15 @@ export function useAnime(season: string, year: number) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [season, year, cacheKey, fetchStreamingDataBatch]);
 
   useEffect(() => {
     if (season) {
-      fetchAnime()
+      // Réinitialiser la liste avant de charger les nouvelles données
+      setAnimeList([]);
+      fetchAnime();
     }
-  }, [season, year])
+  }, [season, year, fetchAnime]);
 
   return { animeList, isLoading, error }
 }
