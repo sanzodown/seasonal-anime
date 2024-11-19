@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Seasonal Anime Viewer",
   description: "Discover anime releases by season with a modern and intuitive interface. Browse series by season, year and access essential information for each anime.",
   keywords: ["anime", "seasonal", "viewer", "streaming", "nextjs", "react"],
-  authors: [{ name: "Your name" }],
+  authors: [{ name: "Pierre Bellenger" }],
   openGraph: {
     title: "Seasonal Anime Viewer",
     description: "Discover anime releases by season with a modern and intuitive interface",
