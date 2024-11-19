@@ -22,6 +22,29 @@ export function AnimeCard({ anime }: AnimeCardProps) {
     return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
   }
 
+  const getStreamingColor = (name: string) => {
+    switch (name.toLowerCase()) {
+      case 'crunchyroll':
+        return 'bg-[#F47521]'
+      case 'netflix':
+        return 'bg-[#E50914]'
+      case 'disney plus':
+      case 'disney+':
+        return 'bg-[#113CCF]'
+      case 'prime video':
+      case 'amazon prime video':
+        return 'bg-[#00A8E1]'
+      case 'hidive':
+        return 'bg-[#00BAAF]'
+      case 'adn':
+        return 'bg-[#0099FF]'
+      case 'wakanim':
+        return 'bg-[#FF1F1F]'
+      default:
+        return 'bg-blue-500'
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Currently Airing':
@@ -43,6 +66,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
         return 'Coming Soon'
     }
   }
+  console.log(anime.title + ' :=> ' + (anime.streaming && anime.streaming.length > 0 ? anime.streaming[0].name : 'No streaming'))
 
   return (
     <>
@@ -70,6 +94,18 @@ export function AnimeCard({ anime }: AnimeCardProps) {
               {getStatusText(anime.status)}
             </span>
           </div>
+          {anime.streaming && anime.streaming.length > 0 && (
+            <div className="absolute top-3 left-3 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {anime.streaming.map((stream, index) => (
+                <span
+                  key={index}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium text-white ${getStreamingColor(stream.name)}`}
+                >
+                  {stream.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <CardContent className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <div className="space-y-3 text-white">
@@ -79,11 +115,6 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             <p className="text-sm leading-relaxed line-clamp-4 text-gray-100/90 font-medium">
               {anime.synopsis}
             </p>
-            {anime.broadcast?.day && (
-              <p className="font-geist-mono text-xs text-gray-100/80 uppercase tracking-wider">
-                Diffusion : {formatDay(anime.broadcast.day)} {anime.broadcast.time}
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>

@@ -57,14 +57,9 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
               <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(anime.status)}`}>
                 {getStatusText(anime.status)}
               </span>
-              {anime.broadcast?.day && (
+              {anime.episodes && (
                 <span className="font-geist-mono text-sm bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                  Diffusion : {formatDay(anime.broadcast.day)} {anime.broadcast.time}
-                </span>
-              )}
-              {anime.studios && anime.studios.length > 0 && (
-                <span className="font-geist-mono text-sm bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                  Studio : {anime.studios.map(studio => studio.name).join(', ')}
+                  Episodes : {anime.episodes}
                 </span>
               )}
             </div>

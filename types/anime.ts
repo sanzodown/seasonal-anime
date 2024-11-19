@@ -1,3 +1,9 @@
+export interface Streaming {
+  name: string
+  url: string
+  language?: string
+}
+
 export interface Anime {
   mal_id: number
   title: string
@@ -15,6 +21,7 @@ export interface Anime {
     time: string
   }
   status: string
+  episodes: number
   trailer: {
     youtube_id: string
     url: string
@@ -24,4 +31,5 @@ export interface Anime {
     name: string
     url: string
   }[]
-} 
+  streaming: Streaming[]
+}
