@@ -18,7 +18,7 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
   const handlePreviousSeason = () => {
     const currentIndex = seasons.indexOf(season)
     if (currentIndex === 0) {
-      onSeasonChange(seasons[seasons.length - 2]) // Skip 'upcoming'
+      onSeasonChange(seasons[seasons.length - 2])
       onYearChange(year - 1)
     } else {
       onSeasonChange(seasons[currentIndex - 1])
@@ -27,10 +27,10 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
 
   const handleNextSeason = () => {
     const currentIndex = seasons.indexOf(season)
-    if (currentIndex === seasons.length - 2) { // Before 'upcoming'
+    if (currentIndex === seasons.length - 2) {
       onSeasonChange(seasons[0])
       onYearChange(year + 1)
-    } else if (currentIndex === seasons.length - 1) { // 'upcoming'
+    } else if (currentIndex === seasons.length - 1) {
       onSeasonChange(seasons[0])
       onYearChange(year)
     } else {

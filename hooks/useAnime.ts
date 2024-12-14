@@ -51,7 +51,6 @@ export function useAnime(season: string, year: number) {
     setIsLoading(true);
     setError('');
 
-    // Nettoyer le cache précédent si nécessaire
     CACHE.forEach((value, key) => {
       if (Date.now() - value.timestamp > CACHE_DURATION) {
         CACHE.delete(key);
@@ -90,7 +89,6 @@ export function useAnime(season: string, year: number) {
 
   useEffect(() => {
     if (season) {
-      // Réinitialiser la liste avant de charger les nouvelles données
       setAnimeList([]);
       fetchAnime();
     }

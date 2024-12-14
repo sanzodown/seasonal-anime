@@ -62,7 +62,6 @@ export function AnimeCard({ anime }: AnimeCardProps) {
         return 'Coming Soon'
     }
   }
-  console.log(anime.title + ' :=> ' + (anime.streaming && anime.streaming.length > 0 ? anime.streaming[0].name : 'No streaming'))
 
   return (
     <>
