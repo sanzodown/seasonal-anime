@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import NodeCache from 'node-cache'
 
-const cache = new NodeCache({ stdTTL: 600 })
+const cache = new NodeCache({ stdTTL: 604800 })//1 week
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

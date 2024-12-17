@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import NodeCache from 'node-cache'
 
-const cache = new NodeCache({ stdTTL: 600 }) // 10 minutes
+const cache = new NodeCache({ stdTTL: 604800 })//1 week
 
 const ANILIST_QUERY = `
   query ($search: String) {
