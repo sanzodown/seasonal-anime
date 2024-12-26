@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Anime } from '@/types/anime'
 
-const BATCH_SIZE = 8;
-const BATCH_DELAY = 300;
+const BATCH_SIZE = 50;
+const BATCH_DELAY = 1000;
 const CACHE = new Map<string, { data: Anime[], timestamp: number }>();
 const CACHE_DURATION = 10 * 60 * 1000;
 
@@ -20,32 +20,41 @@ export function useAnime(season: string, year: number) {
 
     for (let i = 0; i < animeList.length; i += BATCH_SIZE) {
       const batch = animeList.slice(i, i + BATCH_SIZE);
-      const batchResults = await Promise.all(
-        batch.map(async (anime) => {
-          try {
-            const response = await fetch(`/api/anime/streaming?title=${encodeURIComponent(anime.title)}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            return {
-              ...anime,
-              episodes: data.episodes || anime.episodes,
-              streaming: data.streaming || []
-            };
-          } catch (err) {
-            console.warn(`Erreur pour ${anime.title}:`, err);
-            return { ...anime, streaming: [] };
-          }
-        })
-      );
+      try {
+        const response = await fetch('/api/anime/streaming', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            titles: batch.map(anime => anime.title),
+            season,
+            year
+          })
+        });
 
-      results.push(...batchResults);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+
+        const batchResults = batch.map(anime => ({
+          ...anime,
+          episodes: data[anime.title]?.episodes || anime.episodes,
+          streaming: data[anime.title]?.streaming || []
+        }));
+
+        results.push(...batchResults);
+      } catch (err) {
+        console.warn(`Error for batch:`, err);
+        results.push(...batch.map(anime => ({ ...anime, streaming: [] })));
+      }
+
       if (i + BATCH_SIZE < animeList.length) {
         await delay(BATCH_DELAY);
       }
     }
 
     return results;
-  }, []);
+  }, [season, year]);
 
   const fetchAnime = useCallback(async () => {
     setIsLoading(true);
