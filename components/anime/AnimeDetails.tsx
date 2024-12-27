@@ -82,11 +82,11 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw] p-0 bg-black/95 border-white/10">
+      <DialogContent className="max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw] p-0 bg-black/95 border-white/10 max-h-[90vh] overflow-hidden custom-scrollbar">
         <DialogTitle className="sr-only">
           {anime.title} Details
         </DialogTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 h-[90vh]">
+        <div className="grid grid-cols-1 md:grid-cols-2 h-[80vh] md:h-[90vh]">
           {/* Left Column - Image and Trailer Button */}
           <div className="relative h-full overflow-hidden">
             <div className="absolute inset-0">
@@ -114,17 +114,19 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
                   size="lg"
                   className="bg-black/30 hover:bg-black/50 text-white border-white/20
                     backdrop-blur-md gap-2 transition-all duration-300
-                    hover:scale-105 hover:border-white/40 rounded-full px-6"
+                    hover:scale-105 hover:border-white/40 rounded-full px-6
+                    z-10"
                 >
                   <Play className="w-5 h-5" />
-                  Watch Trailer
+                  <span className="hidden sm:inline">Watch Trailer</span>
+                  <span className="sm:hidden">Trailer</span>
                 </Button>
               </div>
             )}
           </div>
 
           {/* Right Column - Content */}
-          <div className="p-6 overflow-y-auto">
+          <div className="p-6 overflow-y-auto h-[40vh] md:h-full">
             <h2 className="text-3xl font-bold mb-4 text-white">{anime.title}</h2>
 
             {/* Status and Episodes */}
@@ -140,8 +142,7 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
             </div>
 
             {/* Synopsis */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2 text-white">Synopsis</h3>
+            <div className="space-y-4 max-h-[40vh] overflow-hidden">
               <p className="text-gray-300 leading-relaxed">{anime.synopsis}</p>
             </div>
 

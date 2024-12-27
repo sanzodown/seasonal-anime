@@ -11,7 +11,7 @@ export function VideoPlayer({ isOpen, onClose, youtubeId }: VideoPlayerProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[80vw] p-0 bg-black/90">
+      <DialogContent className="max-w-[95vw] sm:max-w-[80vw] p-0 bg-black/90">
         <DialogTitle className="sr-only">
           Bande annonce
         </DialogTitle>
