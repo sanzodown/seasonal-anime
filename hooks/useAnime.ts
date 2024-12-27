@@ -1,86 +1,88 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Anime } from '@/types/anime'
 
-const BATCH_SIZE = 50;
-const BATCH_DELAY = 1000;
-const CACHE = new Map<string, { data: Anime[], timestamp: number }>();
-const CACHE_DURATION = 10 * 60 * 1000;
+const RETRY_DELAY = 1000 // 1 second
+const MAX_RETRIES = 3
+const RATE_LIMIT_MESSAGE = 'Rate limit reached. Please wait a moment before trying again.'
+
+interface JikanError {
+  status: string
+  type: string
+  message: string
+  error: string | null
+}
 
 export function useAnime(season: string, year: number) {
   const [animeList, setAnimeList] = useState<Anime[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [retryCount, setRetryCount] = useState(0)
 
-  const cacheKey = `${season}-${year}`;
+  const fetchWithRetry = useCallback(async (url: string, retries = 0): Promise<Response> => {
+    try {
+      const response = await fetch(url)
 
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  const fetchStreamingDataBatch = useCallback(async (animeList: Anime[]) => {
-    const results = [];
-
-    for (let i = 0; i < animeList.length; i += BATCH_SIZE) {
-      const batch = animeList.slice(i, i + BATCH_SIZE);
-      try {
-        const response = await fetch('/api/anime/streaming', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            titles: batch.map(anime => anime.title),
-            season,
-            year
-          })
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-
-        const batchResults = batch.map(anime => ({
-          ...anime,
-          episodes: data[anime.title]?.episodes || anime.episodes,
-          streaming: data[anime.title]?.streaming || []
-        }));
-
-        results.push(...batchResults);
-      } catch (err) {
-        console.warn(`Error for batch:`, err);
-        results.push(...batch.map(anime => ({ ...anime, streaming: [] })));
+      if (response.status === 429) {
+        if (retries < MAX_RETRIES) {
+          setError(RATE_LIMIT_MESSAGE)
+          const delay = RETRY_DELAY * Math.pow(2, retries)
+          await new Promise(resolve => setTimeout(resolve, delay))
+          return fetchWithRetry(url, retries + 1)
+        }
+        const errorData: JikanError = await response.json()
+        throw new Error(errorData.message || RATE_LIMIT_MESSAGE)
       }
 
-      if (i + BATCH_SIZE < animeList.length) {
-        await delay(BATCH_DELAY);
+      return response
+    } catch (err) {
+      if (retries < MAX_RETRIES) {
+        const delay = RETRY_DELAY * Math.pow(2, retries)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        return fetchWithRetry(url, retries + 1)
       }
+      throw err
     }
-
-    return results;
-  }, [season, year]);
+  }, [])
 
   const fetchAnime = useCallback(async () => {
-    setIsLoading(true);
-    setError('');
+    setIsLoading(true)
+    setError('')
+    setRetryCount(0)
 
     try {
-      const url = `/api/anime/season?season=${season}&year=${year}`;
-      const response = await fetch(url);
-      const data = await response.json();
+      const url = `/api/anime/season?season=${season}&year=${year}`
+      const response = await fetchWithRetry(url)
 
-      const tvAnime = data.data?.filter((anime: any) => anime.type === 'TV') || [];
+      if (!response.ok) {
+        const errorData: JikanError = await response.json()
+        throw new Error(errorData.message || 'Failed to fetch anime data')
+      }
 
-      setAnimeList(tvAnime);
+      const data = await response.json()
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      const tvAnime = data.data?.filter((anime: any) => anime.type === 'TV') || []
+      setAnimeList(tvAnime)
+      setError('')
     } catch (err) {
-      setError('Failed to load anime data. Please try again later.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load anime data'
+      setError(errorMessage)
+      if (errorMessage.includes('rate-limit')) {
+        setRetryCount(prev => prev + 1)
+      }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [season, year]);
+  }, [season, year, fetchWithRetry])
 
   useEffect(() => {
     if (season) {
-      setAnimeList([]);
-      fetchAnime();
+      setAnimeList([])
+      fetchAnime()
     }
-  }, [season, year, fetchAnime]);
+  }, [season, year, fetchAnime])
 
-  return { animeList, isLoading, error }
+  return { animeList, isLoading, error, retryCount }
 }

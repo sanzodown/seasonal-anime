@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import NodeCache from 'node-cache'
 import { getCurrentSeason } from '@/lib/utils'
 
-const cache = new NodeCache({ stdTTL: 0 }) // Default to no expiration
+const cache = new NodeCache({ stdTTL: 0 })
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -12,16 +12,8 @@ export async function GET(request: Request) {
   const currentSeason = getCurrentSeason()
 
   const cacheKey = `season-${season}-${year}`
-
-  // Set TTL to 1 week (604800 seconds) for current/future seasons, infinite for past seasons
-  const isPastSeason = Number(year) < currentYear ||
-    (Number(year) === currentYear &&
-      ['winter', 'spring', 'summer', 'fall'].indexOf(season!) <
-      ['winter', 'spring', 'summer', 'fall'].indexOf(currentSeason))
-
-  const ttl = isPastSeason ? 0 : 604800
-
   const cachedData = cache.get(cacheKey)
+
   if (cachedData) {
     return NextResponse.json(cachedData)
   }
@@ -34,12 +26,26 @@ export async function GET(request: Request) {
     const response = await fetch(url)
     const data = await response.json()
 
+    if (response.status === 429 || !response.ok) {
+      return NextResponse.json(
+        data,
+        { status: response.status }
+      )
+    }
+
+    const isPastSeason = Number(year) < currentYear ||
+      (Number(year) === currentYear &&
+        ['winter', 'spring', 'summer', 'fall'].indexOf(season!) <
+        ['winter', 'spring', 'summer', 'fall'].indexOf(currentSeason))
+
+    const ttl = isPastSeason ? 0 : 604800
+
     cache.set(cacheKey, data, ttl)
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Erreur API:', error)
+    console.error('API Error:', error)
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération des données' },
+      { error: 'Error fetching data' },
       { status: 500 }
     )
   }

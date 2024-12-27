@@ -128,7 +128,7 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
         </Button>
       </div>
 
-      <div className="flex gap-2 items-center bg-black/20 p-1 rounded-lg backdrop-blur-sm overflow-x-auto max-w-full w-full sm:w-auto">
+      <div className="flex gap-2 items-center bg-black/20 p-1 rounded-lg backdrop-blur-sm overflow-hidden max-w-full w-full sm:w-auto">
         {visibleYears.map((yearValue) => (
           <Button
             key={yearValue}
