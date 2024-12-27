@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Play } from "lucide-react"
 import { VideoPlayer } from "./VideoPlayer"
+import { formatBroadcastTime, formatSeasonStart } from '@/lib/utils'
 
 interface AnimeDetailsProps {
   anime: Anime
@@ -136,6 +137,16 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
               {anime.episodes && (
                 <span className="px-3 py-1 rounded-full text-sm font-medium bg-white/10">
                   {anime.episodes} episodes
+                </span>
+              )}
+              {anime.status === 'Currently Airing' && anime.broadcast?.day && anime.broadcast?.time && (
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400">
+                  Next episode: {formatBroadcastTime(anime.broadcast.day, anime.broadcast.time)}
+                </span>
+              )}
+              {anime.status === 'Not yet aired' && (
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-400">
+                  Starts: {formatSeasonStart(anime.season || '', anime.year || 0)}
                 </span>
               )}
             </div>

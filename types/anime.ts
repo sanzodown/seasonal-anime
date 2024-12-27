@@ -22,6 +22,8 @@ export interface Anime {
   }
   status: string
   episodes?: number
+  season?: string
+  year?: number
   trailer: {
     youtube_id: string
     url: string

@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Anime } from "@/types/anime"
 import { AnimeDetails } from './AnimeDetails'
 import Image from 'next/image'
+import { formatBroadcastTime, formatSeasonStart } from '@/lib/utils'
 
 interface AnimeCardProps {
   anime: Anime
@@ -101,6 +102,16 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             <h2 className="text-2xl font-bold leading-tight line-clamp-2 drop-shadow-lg">
               {anime.title}
             </h2>
+            {anime.status === 'Currently Airing' && anime.broadcast?.day && anime.broadcast?.time && (
+              <p className="text-sm font-medium text-green-400">
+                Next episode: {formatBroadcastTime(anime.broadcast.day, anime.broadcast.time)}
+              </p>
+            )}
+            {anime.status === 'Not yet aired' && (
+              <p className="text-sm font-medium text-yellow-400">
+                Starts: {formatSeasonStart(anime.season || '', anime.year || 0)}
+              </p>
+            )}
             <p className="text-sm leading-relaxed line-clamp-4 text-gray-100/90 font-medium">
               {anime.synopsis}
             </p>
