@@ -57,7 +57,7 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [season, year])
+  }, [season, year, handleNavigate])
 
   const visibleYears = useMemo(() => {
     const yearIndex = allYears.indexOf(year)

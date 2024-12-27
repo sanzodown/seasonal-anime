@@ -10,10 +10,9 @@ import { getCurrentSeason } from '@/lib/utils'
 export default function SeasonalAnimePage() {
   const [season, setSeason] = useState(getCurrentSeason())
   const [year, setYear] = useState(new Date().getFullYear())
-  const { animeList, isLoading, error, retryCount } = useAnime(season, year)
+  const { animeList, isLoading, error } = useAnime(season, year)
 
   const handleRetry = () => {
-    // Force a re-render by changing the key of useAnime
     setSeason(prev => prev)
   }
 
