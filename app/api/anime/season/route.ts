@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import NodeCache from 'node-cache'
 import { getCurrentSeason } from '@/lib/utils'
 
+export const runtime = 'edge'
+export const revalidate = false
+
 const cache = new NodeCache({ stdTTL: 0 })
 
 export async function GET(request: Request) {
@@ -15,7 +18,9 @@ export async function GET(request: Request) {
   const cachedData = cache.get(cacheKey)
 
   if (cachedData) {
-    return NextResponse.json(cachedData)
+    const response = NextResponse.json(cachedData)
+    response.headers.set('Cache-Control', 'public, max-age=604800, s-maxage=604800')
+    return response
   }
 
   try {
@@ -39,9 +44,17 @@ export async function GET(request: Request) {
         ['winter', 'spring', 'summer', 'fall'].indexOf(currentSeason))
 
     const ttl = isPastSeason ? 0 : 604800
-
     cache.set(cacheKey, data, ttl)
-    return NextResponse.json(data)
+
+    const apiResponse = NextResponse.json(data)
+
+    if (isPastSeason) {
+      apiResponse.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+    } else {
+      apiResponse.headers.set('Cache-Control', 'public, max-age=604800, s-maxage=604800')
+    }
+
+    return apiResponse
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
