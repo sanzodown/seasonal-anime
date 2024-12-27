@@ -18,7 +18,10 @@ export default function SeasonalAnimePage() {
 
   return (
     <div className="container mx-auto p-4">
-      <Header />
+      <Header
+        onSeasonChange={setSeason}
+        onYearChange={setYear}
+      />
       <SeasonSelector
         season={season}
         year={year}

@@ -104,7 +104,6 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
                   transform: 'scale(1.05)'
                 }}
               />
-              {/* Enhanced gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/20 to-black backdrop-blur-[2px]" />
             </div>
 
@@ -112,16 +111,14 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
               <div className="absolute inset-0 flex items-center justify-center">
                 <Button
                   onClick={() => setIsVideoOpen(true)}
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
-                  className="bg-black/30 hover:bg-black/50 text-white border-white/20
-                    backdrop-blur-md gap-2 transition-all duration-300
-                    hover:scale-105 hover:border-white/40 rounded-full px-6
-                    z-10"
+                  className="text-white hover:bg-white/10 transition-all duration-300
+                    gap-2 group px-6 py-3 relative"
                 >
-                  <Play className="w-5 h-5" />
-                  <span className="hidden sm:inline">Watch Trailer</span>
-                  <span className="sm:hidden">Trailer</span>
+                  <Play className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                  <span className="hidden sm:inline font-medium">Watch Trailer</span>
+                  <span className="sm:hidden font-medium">Trailer</span>
                 </Button>
               </div>
             )}

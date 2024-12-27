@@ -1,9 +1,24 @@
 import Link from 'next/link'
+import { getCurrentSeason } from '@/lib/utils'
 
-export function Header() {
+interface HeaderProps {
+  onSeasonChange: (season: string) => void
+  onYearChange: (year: number) => void
+}
+
+export function Header({ onSeasonChange, onYearChange }: HeaderProps) {
+  const currentSeason = getCurrentSeason()
+  const currentYear = new Date().getFullYear()
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    onSeasonChange(currentSeason)
+    onYearChange(currentYear)
+  }
+
   return (
     <header className="flex justify-between items-center mb-8">
-      <Link href="/" className="flex items-center group">
+      <a href="#" onClick={handleClick} className="flex items-center group">
         <svg
           width="48"
           height="48"
@@ -25,7 +40,7 @@ export function Header() {
         <h1 className="text-3xl font-bold text-white font-geist-mono tracking-tight bg-gradient-to-r from-purple-500/80 to-purple-700/80 bg-clip-text text-transparent transition-all group-hover:from-purple-600/80 group-hover:to-purple-800/80">
           Pewpewlazer&apos;s seasonal anime
         </h1>
-      </Link>
+      </a>
     </header>
   )
 }
