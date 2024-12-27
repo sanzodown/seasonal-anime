@@ -67,7 +67,9 @@ export function AnimeCard({ anime }: AnimeCardProps) {
       >
         <div className="absolute inset-0 overflow-hidden">
           <Image
-            src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
+            src={`/api/image-proxy?url=${encodeURIComponent(
+              anime.images.jpg.large_image_url || anime.images.jpg.image_url
+            )}`}
             alt={anime.title}
             className="w-full h-full object-cover transition-all duration-300 scale-[1.15] group-hover:scale-100 group-hover:blur-[5px]"
             loading="lazy"

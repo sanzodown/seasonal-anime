@@ -91,7 +91,9 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
           <div className="relative h-full overflow-hidden">
             <div className="absolute inset-0">
               <Image
-                src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
+                src={`/api/image-proxy?url=${encodeURIComponent(
+                  anime.images.jpg.large_image_url || anime.images.jpg.image_url
+                )}`}
                 alt={anime.title}
                 width={1920}
                 height={1080}
