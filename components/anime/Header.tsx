@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { getCurrentSeason } from '@/lib/utils'
 
 interface HeaderProps {

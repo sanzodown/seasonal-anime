@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, ArrowRight } from "lucide-react"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useCallback } from "react"
 import { getCurrentSeason } from "@/lib/utils"
 
 interface SeasonSelectorProps {
@@ -27,7 +27,7 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
   const currentSeasonIndex = seasons.indexOf(season)
   const currentYearIndex = allYears.indexOf(year)
 
-  const handleNavigate = (direction: 'prev' | 'next') => {
+  const handleNavigate = useCallback((direction: 'prev' | 'next') => {
     if (direction === 'prev') {
       if (currentSeasonIndex === 0) {
         if (currentYearIndex > 0) {
@@ -47,7 +47,7 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
         onSeasonChange(seasons[currentSeasonIndex + 1])
       }
     }
-  }
+  }, [currentSeasonIndex, currentYearIndex, year, allYears.length, currentYear, onSeasonChange, onYearChange, seasons])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
