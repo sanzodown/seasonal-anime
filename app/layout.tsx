@@ -14,34 +14,34 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Seasonal Anime Viewer",
+  title: "Pewpewlazer's Seasonal Anime",
   description: "Discover anime releases by season with a modern and intuitive interface. Browse series by season, year and access essential information for each anime.",
   keywords: ["anime", "seasonal", "viewer", "streaming", "nextjs", "react"],
   authors: [{ name: "Pierre Bellenger" }],
   openGraph: {
-    title: "Seasonal Anime Viewer",
+    title: "Pewpewlazer's Seasonal Anime",
     description: "Discover anime releases by season with a modern and intuitive interface",
     images: [
       {
-        url: "/screenshot.png",
-        width: 1200,
-        height: 630,
-        alt: "Seasonal Anime Viewer Screenshot"
+        url: "/logo.svg",
+        width: 48,
+        height: 48,
+        alt: "Pewpewlazer's Seasonal Anime Logo"
       }
     ],
     locale: "en_US",
     type: "website"
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Seasonal Anime Viewer",
+    card: "summary",
+    title: "Pewpewlazer's Seasonal Anime",
     description: "Discover anime releases by season with a modern and intuitive interface",
-    images: ["/screenshot.png"]
+    images: ["/logo.svg"]
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png"
+    icon: { url: "/logo.svg", type: "image/svg+xml" },
+    shortcut: { url: "/logo.svg", type: "image/svg+xml" },
+    apple: { url: "/logo.svg", type: "image/svg+xml" }
   }
 }
 

@@ -21,7 +21,7 @@ export interface Anime {
     time: string
   }
   status: string
-  episodes: number
+  episodes?: number
   trailer: {
     youtube_id: string
     url: string
@@ -31,5 +31,5 @@ export interface Anime {
     name: string
     url: string
   }[]
-  streaming: Streaming[]
+  streaming?: Streaming[]
 }

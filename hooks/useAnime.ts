@@ -60,41 +60,20 @@ export function useAnime(season: string, year: number) {
     setIsLoading(true);
     setError('');
 
-    CACHE.forEach((value, key) => {
-      if (Date.now() - value.timestamp > CACHE_DURATION) {
-        CACHE.delete(key);
-      }
-    });
-
-    const cached = CACHE.get(cacheKey);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-      setAnimeList(cached.data);
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const url = `/api/anime/season?season=${season}&year=${year}`;
       const response = await fetch(url);
       const data = await response.json();
 
       const tvAnime = data.data?.filter((anime: any) => anime.type === 'TV') || [];
-      const animeWithStreaming = await fetchStreamingDataBatch(tvAnime);
 
-      CACHE.set(cacheKey, {
-        data: animeWithStreaming,
-        timestamp: now
-      });
-
-      setAnimeList(animeWithStreaming);
+      setAnimeList(tvAnime);
     } catch (err) {
-      setError('Échec du chargement des données. Veuillez réessayer plus tard.');
+      setError('Failed to load anime data. Please try again later.');
     } finally {
       setIsLoading(false);
     }
-  }, [season, year, cacheKey, fetchStreamingDataBatch]);
+  }, [season, year]);
 
   useEffect(() => {
     if (season) {

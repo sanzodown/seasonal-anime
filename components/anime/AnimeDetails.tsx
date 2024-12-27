@@ -1,6 +1,13 @@
+"use client"
+
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Anime } from "@/types/anime"
+import { useStreamingData } from "@/hooks/useStreamingData"
+import { useEffect, useRef, useState } from "react"
 import Image from 'next/image'
+import { Button } from "@/components/ui/button"
+import { Play } from "lucide-react"
+import { VideoPlayer } from "./VideoPlayer"
 
 interface AnimeDetailsProps {
   anime: Anime
@@ -8,68 +15,172 @@ interface AnimeDetailsProps {
   onClose: () => void
 }
 
-function getStatusText(status: string): string {
-  const statusMap: Record<string, string> = {
-    'finished': 'Finished',
-    'currently_airing': 'Airing',
-    'not_yet_aired': 'Coming Soon'
+function getStreamingColor(name: string): string {
+  switch (name.toLowerCase()) {
+    case 'crunchyroll':
+      return 'bg-[#F47521]'
+    case 'netflix':
+      return 'bg-[#E50914]'
+    case 'disney plus':
+    case 'disney+':
+      return 'bg-[#113CCF]'
+    case 'prime video':
+    case 'amazon prime video':
+      return 'bg-[#00A8E1]'
+    case 'hidive':
+      return 'bg-[#00BAAF]'
+    case 'adn':
+      return 'bg-[#0099FF]'
+    case 'wakanim':
+      return 'bg-[#FF1F1F]'
+    default:
+      return 'bg-blue-500'
   }
-  return statusMap[status] || status
 }
 
 function getStatusColor(status: string): string {
-  const colorMap: Record<string, string> = {
-    'finished': 'bg-green-500',
-    'currently_airing': 'bg-blue-500',
-    'not_yet_aired': 'bg-yellow-500'
+  switch (status) {
+    case 'Currently Airing':
+      return 'bg-green-500'
+    case 'Finished Airing':
+      return 'bg-red-500'
+    default:
+      return 'bg-yellow-500'
   }
-  return colorMap[status] || 'bg-gray-500'
+}
+
+function getStatusText(status: string): string {
+  switch (status) {
+    case 'Currently Airing':
+      return 'Airing'
+    case 'Finished Airing':
+      return 'Finished'
+    default:
+      return 'Coming Soon'
+  }
 }
 
 export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
+  const { streamingData, isLoading, error, fetchStreamingData } = useStreamingData()
+  const [isVideoOpen, setIsVideoOpen] = useState(false)
+  const hasFetched = useRef(false)
+
+  useEffect(() => {
+    if (isOpen && !hasFetched.current && !streamingData[anime.title]) {
+      hasFetched.current = true
+      fetchStreamingData(anime.title)
+    }
+
+    if (!isOpen) {
+      hasFetched.current = false
+    }
+  }, [isOpen, anime.title, streamingData, fetchStreamingData])
+
+  const currentStreamingData = streamingData[anime.title]
+  const isLoadingCurrent = isLoading[anime.title]
+  const currentError = error[anime.title]
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw] max-h-[90vh] overflow-y-auto p-0 bg-black/95 border-white/10">
+      <DialogContent className="max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw] p-0 bg-black/95 border-white/10">
         <DialogTitle className="sr-only">
-          Détails de {anime.title}
+          {anime.title} Details
         </DialogTitle>
-        <div className="relative h-[50vh] lg:h-[60vh] overflow-hidden">
-          <Image
-            src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
-            alt={anime.title}
-            className="w-full h-full object-cover object-center filter brightness-90 blur-[2px] scale-105 transition-all duration-300"
-            width={500}
-            height={300}
-            style={{ objectFit: 'cover' }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(0,0,0,0.95),transparent_70%)]" />
+        <div className="grid grid-cols-1 md:grid-cols-2 h-[90vh]">
+          {/* Left Column - Image and Trailer Button */}
+          <div className="relative h-full overflow-hidden">
+            <div className="absolute inset-0">
+              <Image
+                src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
+                alt={anime.title}
+                width={1920}
+                height={1080}
+                priority
+                className="object-cover w-full h-full scale-105 transition-transform duration-300"
+                style={{
+                  filter: 'contrast(1.1) saturate(1.2)',
+                  transform: 'scale(1.05)'
+                }}
+              />
+              {/* Enhanced gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/20 to-black backdrop-blur-[2px]" />
+            </div>
+
+            {anime.trailer?.youtube_id && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Button
+                  onClick={() => setIsVideoOpen(true)}
+                  variant="outline"
+                  size="lg"
+                  className="bg-black/30 hover:bg-black/50 text-white border-white/20
+                    backdrop-blur-md gap-2 transition-all duration-300
+                    hover:scale-105 hover:border-white/40 rounded-full px-6"
+                >
+                  <Play className="w-5 h-5" />
+                  Watch Trailer
+                </Button>
+              </div>
+            )}
           </div>
-          <div className="absolute bottom-8 left-8 right-8 text-white space-y-4">
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              {anime.title}
-            </h2>
-            <div className="flex flex-wrap items-center gap-4">
-              <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(anime.status)}`}>
+
+          {/* Right Column - Content */}
+          <div className="p-6 overflow-y-auto">
+            <h2 className="text-3xl font-bold mb-4 text-white">{anime.title}</h2>
+
+            {/* Status and Episodes */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(anime.status)}`}>
                 {getStatusText(anime.status)}
               </span>
               {anime.episodes && (
-                <span className="font-geist-mono text-sm bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                  Episodes : {anime.episodes}
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-white/10">
+                  {anime.episodes} episodes
                 </span>
+              )}
+            </div>
+
+            {/* Synopsis */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-2 text-white">Synopsis</h3>
+              <p className="text-gray-300 leading-relaxed">{anime.synopsis}</p>
+            </div>
+
+            {/* Streaming Section */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold mb-2 text-white">Available on</h3>
+              {isLoadingCurrent ? (
+                <p className="text-gray-400">Loading streaming information...</p>
+              ) : currentError ? (
+                <p className="text-red-400">{currentError}</p>
+              ) : currentStreamingData?.streaming.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {currentStreamingData.streaming.map((service, index) => (
+                    <a
+                      key={index}
+                      href={service.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium text-white transition-opacity hover:opacity-90 ${getStreamingColor(service.name)}`}
+                    >
+                      {service.name}
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">No streaming services available</p>
               )}
             </div>
           </div>
         </div>
-        <div className="p-8 space-y-6">
-          <div>
-            <h3 className="text-2xl font-semibold mb-4">Synopsis</h3>
-            <p className="text-gray-300 leading-relaxed text-lg">
-              {anime.synopsis}
-            </p>
-          </div>
-        </div>
       </DialogContent>
+
+      {anime.trailer?.youtube_id && (
+        <VideoPlayer
+          isOpen={isVideoOpen}
+          onClose={() => setIsVideoOpen(false)}
+          youtubeId={anime.trailer.youtube_id}
+        />
+      )}
     </Dialog>
   )
 }

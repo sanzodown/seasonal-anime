@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Anime } from "@/types/anime"
-import { VideoPlayer } from './VideoPlayer'
 import { AnimeDetails } from './AnimeDetails'
 import Image from 'next/image'
 
@@ -10,13 +9,7 @@ interface AnimeCardProps {
 }
 
 export function AnimeCard({ anime }: AnimeCardProps) {
-  const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setIsDetailsOpen(true)
-  }
 
   const getStreamingColor = (name: string) => {
     switch (name.toLowerCase()) {
@@ -70,8 +63,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
           hover:scale-[1.02] hover:shadow-xl hover:shadow-white/25
           hover:backdrop-blur-sm hover:border-2 hover:border-white/50
           bg-white dark:bg-gray-800 cursor-pointer"
-        onClick={() => anime.trailer?.youtube_id && setIsVideoOpen(true)}
-        onContextMenu={handleContextMenu}
+        onClick={() => setIsDetailsOpen(true)}
       >
         <div className="absolute inset-0 overflow-hidden">
           <Image
@@ -113,12 +105,6 @@ export function AnimeCard({ anime }: AnimeCardProps) {
           </div>
         </CardContent>
       </Card>
-
-      <VideoPlayer
-        isOpen={isVideoOpen}
-        onClose={() => setIsVideoOpen(false)}
-        youtubeId={anime.trailer?.youtube_id}
-      />
 
       <AnimeDetails
         anime={anime}
