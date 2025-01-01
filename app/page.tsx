@@ -10,7 +10,14 @@ import { getCurrentSeason } from '@/lib/utils'
 export default function SeasonalAnimePage() {
   const [season, setSeason] = useState(getCurrentSeason())
   const [year, setYear] = useState(new Date().getFullYear())
-  const { animeList, isLoading, error } = useAnime(season, year)
+  const {
+    animeList,
+    isLoading,
+    error,
+    pagination,
+    isLoadingMore,
+    loadMore
+  } = useAnime(season, year)
 
   const handleRetry = () => {
     setSeason(prev => prev)
@@ -33,6 +40,9 @@ export default function SeasonalAnimePage() {
         isLoading={isLoading}
         error={error}
         onRetry={handleRetry}
+        pagination={pagination}
+        isLoadingMore={isLoadingMore}
+        onLoadMore={loadMore}
       />
     </div>
   )

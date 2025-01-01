@@ -11,10 +11,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const season = searchParams.get('season')
   const year = searchParams.get('year')
+  const page = searchParams.get('page') || '1'
   const currentYear = new Date().getFullYear()
   const currentSeason = getCurrentSeason()
 
-  const cacheKey = `season-${season}-${year}`
+  const cacheKey = `season-${season}-${year}-${page}`
   const cachedData = cache.get(cacheKey)
 
   if (cachedData) {
@@ -25,8 +26,8 @@ export async function GET(request: Request) {
 
   try {
     const url = season === 'upcoming'
-      ? 'https://api.jikan.moe/v4/seasons/upcoming'
-      : `https://api.jikan.moe/v4/seasons/${year}/${season}`
+      ? `https://api.jikan.moe/v4/seasons/upcoming?page=${page}`
+      : `https://api.jikan.moe/v4/seasons/${year}/${season}?page=${page}`
 
     const response = await fetch(url)
     const data = await response.json()
