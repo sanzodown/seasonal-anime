@@ -39,20 +39,19 @@ export async function GET(request: Request) {
       )
     }
 
-    const isPastSeason = Number(year) < currentYear ||
-      (Number(year) === currentYear &&
-        ['winter', 'spring', 'summer', 'fall'].indexOf(season!) <
-        ['winter', 'spring', 'summer', 'fall'].indexOf(currentSeason))
+    const isCurrentOrAdjacentSeason = Number(year) === currentYear &&
+      Math.abs(['winter', 'spring', 'summer', 'fall'].indexOf(season!) -
+        ['winter', 'spring', 'summer', 'fall'].indexOf(currentSeason)) <= 1
 
-    const ttl = isPastSeason ? 0 : 604800
+    const ttl = isCurrentOrAdjacentSeason ? 3600 : 0
     cache.set(cacheKey, data, ttl)
 
     const apiResponse = NextResponse.json(data)
 
-    if (isPastSeason) {
-      apiResponse.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+    if (isCurrentOrAdjacentSeason) {
+      apiResponse.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=3600')
     } else {
-      apiResponse.headers.set('Cache-Control', 'public, max-age=604800, s-maxage=604800')
+      apiResponse.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
     }
 
     return apiResponse

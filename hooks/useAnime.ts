@@ -81,7 +81,12 @@ export function useAnime(season: string, year: number) {
 
   const fetchWithRetry = useCallback(async (url: string, retries = 0): Promise<Response> => {
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
 
       if (response.status === 429) {
         if (retries < MAX_RETRIES) {
@@ -171,6 +176,9 @@ export function useAnime(season: string, year: number) {
     if (season) {
       setAnimeList([])
       setPagination(null)
+      setIsLoading(true)
+      setError('')
+      setRetryCount(0)
       fetchAnime(1)
     }
   }, [season, year, fetchAnime])
