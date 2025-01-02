@@ -24,7 +24,7 @@ export function AnimeGrid({
   isLoadingMore,
   onLoadMore
 }: AnimeGridProps) {
-  const { ref, isNearEnd, hasMore, isLoadingMore: isNearLoading } = useInfiniteScroll({
+  const { ref, isNearEnd, hasMore } = useInfiniteScroll({
     onLoadMore: () => onLoadMore?.(),
     isLoading: isLoadingMore || false,
     hasNextPage: pagination?.has_next_page || false,
@@ -98,7 +98,7 @@ export function AnimeGrid({
         )}
         {!isLoadingMore && !hasMore && animeList.length > 0 && (
           <div className="text-sm text-muted-foreground">
-            You've reached the end
+            You&apos;ve reached the end
           </div>
         )}
       </div>
