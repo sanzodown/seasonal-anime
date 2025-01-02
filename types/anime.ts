@@ -20,6 +20,24 @@ export interface AnimeResponse {
   pagination: Pagination
 }
 
+export interface Aired {
+  from: string | null
+  to: string | null
+  prop: {
+    from: {
+      day: number | null
+      month: number | null
+      year: number | null
+    }
+    to: {
+      day: number | null
+      month: number | null
+      year: number | null
+    }
+  }
+  string: string
+}
+
 export interface Anime {
   mal_id: number
   title: string
@@ -40,6 +58,7 @@ export interface Anime {
   episodes?: number
   season?: string
   year?: number
+  aired: Aired
   trailer: {
     youtube_id: string
     url: string

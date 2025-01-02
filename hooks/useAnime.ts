@@ -16,6 +16,57 @@ interface ErrorResponse {
   error: string
 }
 
+function isRelevantToSeason(anime: Anime, targetSeason: string, targetYear: number): boolean {
+  // If the anime has explicit season and year, check if they match
+  if (anime.season && anime.year) {
+    return anime.season.toLowerCase() === targetSeason.toLowerCase() &&
+      anime.year === targetYear
+  }
+
+  // If the anime is not yet aired, check its aired.from date
+  if (anime.status === 'Not yet aired' && anime.aired.prop.from.year && anime.aired.prop.from.month) {
+    // Skip anime with placeholder dates (usually set to January 1st)
+    if (anime.aired.prop.from.month === 1 && anime.aired.prop.from.day === 1) {
+      return false
+    }
+
+    const month = anime.aired.prop.from.month
+    let season = ''
+
+    // Convert month to season
+    if (month >= 1 && month <= 3) season = 'winter'
+    else if (month >= 4 && month <= 6) season = 'spring'
+    else if (month >= 7 && month <= 9) season = 'summer'
+    else season = 'fall'
+
+    return season === targetSeason.toLowerCase() &&
+      anime.aired.prop.from.year === targetYear
+  }
+
+  // For currently airing shows without season data, check if they started airing
+  // within the target season's timeframe
+  if (anime.status === 'Currently Airing' && anime.aired.from) {
+    const airDate = new Date(anime.aired.from)
+    const year = airDate.getFullYear()
+    const month = airDate.getMonth() + 1
+
+    // Skip anime with placeholder dates
+    if (month === 1 && airDate.getDate() === 1) {
+      return false
+    }
+
+    let season = ''
+    if (month >= 1 && month <= 3) season = 'winter'
+    else if (month >= 4 && month <= 6) season = 'spring'
+    else if (month >= 7 && month <= 9) season = 'summer'
+    else season = 'fall'
+
+    return season === targetSeason.toLowerCase() && year === targetYear
+  }
+
+  return false
+}
+
 export function useAnime(season: string, year: number) {
   const [animeList, setAnimeList] = useState<Anime[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -78,7 +129,9 @@ export function useAnime(season: string, year: number) {
 
       // Now we know it's an AnimeResponse
       const data = responseData as AnimeResponse
-      const tvAnime = data.data?.filter((anime: any) => anime.type === 'TV') || []
+      const tvAnime = data.data
+        ?.filter((anime: Anime) => anime.type === 'TV')
+        ?.filter(anime => isRelevantToSeason(anime, season, year)) || []
 
       if (isLoadMore) {
         setAnimeList(prev => [...prev, ...tvAnime])

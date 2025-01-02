@@ -1,113 +1,152 @@
-import { clsx, type ClassValue } from "clsx"
+import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import type { Aired } from "@/types/anime"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function generateRange(min: number, max: number): number[] {
-  return Array.from(
-    { length: max - min + 1 },
-    (_, i) => max - i
-  )
-}
-
 export function getCurrentSeason(): string {
-  const currentMonth = new Date().getMonth()
-  const seasons = ["winter", "spring", "summer", "fall"]
-  return seasons[Math.floor(currentMonth / 3)]
+  const month = new Date().getMonth() + 1 // getMonth() returns 0-11
+
+  if (month >= 1 && month <= 3) return 'winter'
+  if (month >= 4 && month <= 6) return 'spring'
+  if (month >= 7 && month <= 9) return 'summer'
+  return 'fall'
 }
 
-export function formatDay(day: string): string {
-  return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
-}
+function convertJSTtoLocal(jstTimeStr: string, dayOfWeek: string): { time: string; day: string } {
+  try {
+    // Create a date object for the next occurrence of the broadcast day
+    const now = new Date()
+    const daysMap: { [key: string]: number } = {
+      'sundays': 0, 'mondays': 1, 'tuesdays': 2, 'wednesdays': 3,
+      'thursdays': 4, 'fridays': 5, 'saturdays': 6
+    }
 
-export const STATUS_COLORS = {
-  "Currently Airing": "bg-green-500",
-  "Finished Airing": "bg-red-500",
-  "Not yet aired": "bg-yellow-500",
-} as const
+    const targetDay = daysMap[dayOfWeek.toLowerCase()]
+    if (targetDay === undefined) return { time: jstTimeStr, day: dayOfWeek }
 
-export function formatBroadcastTime(broadcastDay: string, broadcastTime: string): string {
-  // Convert day to number (0 = Sunday, 1 = Monday, etc.)
-  const dayMap: { [key: string]: number } = {
-    'Sundays': 0, 'Mondays': 1, 'Tuesdays': 2, 'Wednesdays': 3,
-    'Thursdays': 4, 'Fridays': 5, 'Saturdays': 6
+    let daysUntilBroadcast = targetDay - now.getDay()
+    if (daysUntilBroadcast <= 0) daysUntilBroadcast += 7
+
+    // Parse the JST time
+    const [hours, minutes] = jstTimeStr.replace('(JST)', '').trim().split(':').map(Number)
+    if (isNaN(hours) || isNaN(minutes)) return { time: jstTimeStr, day: dayOfWeek }
+
+    // Create a date object for the next broadcast in JST
+    const jstDate = new Date(now)
+    jstDate.setDate(jstDate.getDate() + daysUntilBroadcast)
+    jstDate.setHours(hours, minutes)
+
+    // Convert JST to UTC
+    const jstOffset = 9 * 60 // JST is UTC+9
+    const localOffset = jstDate.getTimezoneOffset()
+    const totalOffset = jstOffset + localOffset
+
+    // Create a new date object for local time
+    const localDate = new Date(jstDate)
+    localDate.setMinutes(localDate.getMinutes() - totalOffset)
+
+    // If the conversion moves the date to the previous/next day, adjust the day name
+    const localDay = localDate.getDay()
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+    // Format the time in 12-hour format
+    const timeString = localDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+
+    return {
+      time: timeString,
+      day: days[localDay]
+    }
+  } catch (error) {
+    return { time: jstTimeStr, day: dayOfWeek }
   }
-
-  // Get current date
-  const now = new Date()
-  const currentDay = now.getDay()
-
-  // Calculate days until next broadcast
-  let daysUntil = dayMap[broadcastDay] - currentDay
-  if (daysUntil <= 0) daysUntil += 7 // If the day has passed this week, get next week's date
-
-  // Create date object for next broadcast (in JST)
-  const [hours, minutes] = broadcastTime.split(':').map(Number)
-  const broadcastDate = new Date(now)
-  broadcastDate.setDate(broadcastDate.getDate() + daysUntil)
-  broadcastDate.setHours(hours, minutes)
-
-  // Convert JST to UTC
-  const jstOffset = 9 * 60 // JST is UTC+9
-  const localOffset = broadcastDate.getTimezoneOffset()
-  const totalOffset = jstOffset + localOffset
-  broadcastDate.setMinutes(broadcastDate.getMinutes() - totalOffset)
-
-  // Calculate GMT offset
-  const gmtOffset = -localOffset / 60 // Convert minutes to hours
-  const gmtString = `GMT${gmtOffset >= 0 ? '+' : ''}${gmtOffset}`
-
-  // Format the date for display
-  const dateNumber = broadcastDate.getDate()
-  const monthName = broadcastDate.toLocaleString('en-us', { month: 'long' }).toLowerCase()
-  const formattedTime = broadcastDate.toLocaleString('en-us', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  })
-
-  return `${dateNumber} ${monthName} at ${formattedTime} (${gmtString})`
 }
 
-export function getSeasonStartDate(season: string, year: number): Date {
-  const seasonStartMonths = {
-    'winter': 0,  // January
-    'spring': 3,  // April
-    'summer': 6,  // July
-    'fall': 9     // October
-  } as const
+export function formatBroadcastTime(day: string, time: string): string {
+  try {
+    // Convert JST to local time
+    const { time: localTime, day: localDay } = convertJSTtoLocal(time, day)
 
-  return new Date(year, seasonStartMonths[season as keyof typeof seasonStartMonths], 1)
+    // Get current date
+    const now = new Date()
+    const today = now.getDay()
+
+    // Map of days to numbers (0 = Sunday, 1 = Monday, etc.)
+    const daysMap: { [key: string]: number } = {
+      'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+      'thursday': 4, 'friday': 5, 'saturday': 6
+    }
+
+    // Get the target day number
+    const targetDay = daysMap[localDay.toLowerCase()]
+    if (targetDay === undefined) return 'Unknown'
+
+    // Calculate days until next broadcast
+    let daysUntil = targetDay - today
+    if (daysUntil <= 0) daysUntil += 7
+
+    // Return appropriate string based on days until
+    if (daysUntil === 0) return `Today at ${localTime}`
+    if (daysUntil === 1) return `Tomorrow at ${localTime}`
+    return `${localDay} at ${localTime}`
+  } catch (error) {
+    return 'Broadcast time unknown'
+  }
+}
+
+function getMonthName(month: number): string {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+  return months[month - 1] || ''
+}
+
+export function formatAiredDate(aired: Aired): string {
+  try {
+    if (!aired.from) return 'Release date unknown'
+
+    const fromDate = new Date(aired.from)
+    const now = new Date()
+
+    // For dates in the future
+    if (fromDate > now) {
+      const day = aired.prop.from.day
+      const month = aired.prop.from.month
+      const year = aired.prop.from.year
+
+      if (!month || !year) return 'Release date unknown'
+
+      const monthName = getMonthName(month)
+      if (!day) return `${monthName} ${year}`
+
+      return `${monthName} ${day}, ${year}`
+    }
+
+    // For currently airing or completed shows
+    return aired.string || 'Release date unknown'
+  } catch (error) {
+    return 'Release date unknown'
+  }
 }
 
 export function formatSeasonStart(season: string, year: number): string {
-  if (!season) {
-    return `No date: ~ ${new Date().toLocaleString('en-us', { month: 'long' }).toLowerCase()}`
+  const seasonStarts: { [key: string]: number } = {
+    'winter': 1,  // January
+    'spring': 4,  // April
+    'summer': 7,  // July
+    'fall': 10    // October
   }
 
-  const seasonStartMonths = {
-    'winter': 0,  // January
-    'spring': 3,  // April
-    'summer': 6,  // July
-    'fall': 9     // October
-  } as const
+  const monthNumber = seasonStarts[season.toLowerCase()]
+  if (!monthNumber) return 'Unknown'
 
-  // Get the month name for the season
-  const monthIndex = seasonStartMonths[season.toLowerCase() as keyof typeof seasonStartMonths]
-  const monthName = new Date(2000, monthIndex).toLocaleString('en-us', { month: 'long' }).toLowerCase()
-
-  if (!year) {
-    return `No date: ~ ${monthName}`
-  }
-
-  // For upcoming seasons, don't show the specific day
-  const now = new Date()
-  const seasonDate = new Date(year, monthIndex)
-  if (seasonDate > now) {
-    return `~ ${monthName} ${year}`
-  }
-
-  return `1 ${monthName} ${year}`
+  const monthName = getMonthName(monthNumber)
+  return `${monthName} ${year}`
 }

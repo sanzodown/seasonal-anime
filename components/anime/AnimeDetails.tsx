@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Play } from "lucide-react"
 import { VideoPlayer } from "./VideoPlayer"
-import { formatBroadcastTime, formatSeasonStart } from '@/lib/utils'
+import { formatBroadcastTime, formatAiredDate } from '@/lib/utils'
 
 interface AnimeDetailsProps {
   anime: Anime
@@ -146,7 +146,7 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
               )}
               {anime.status === 'Not yet aired' && (
                 <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-400">
-                  Starts: {formatSeasonStart(anime.season || '', anime.year || 0)}
+                  Starts: {formatAiredDate(anime.aired)}
                 </span>
               )}
             </div>
