@@ -24,7 +24,7 @@ export function AnimeGrid({
   isLoadingMore,
   onLoadMore
 }: AnimeGridProps) {
-  const { ref, isNearEnd, hasMore } = useInfiniteScroll({
+  const { ref, hasMore } = useInfiniteScroll({
     onLoadMore: () => onLoadMore?.(),
     isLoading: isLoadingMore || false,
     hasNextPage: pagination?.has_next_page || false,
