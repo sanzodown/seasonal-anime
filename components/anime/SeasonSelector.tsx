@@ -12,7 +12,7 @@ interface SeasonSelectorProps {
 }
 
 export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: SeasonSelectorProps) {
-  const seasons = ['winter', 'spring', 'summer', 'fall']
+  const seasons = useMemo(() => ['winter', 'spring', 'summer', 'fall'], [])
   const currentYear = new Date().getFullYear()
   const currentSeason = getCurrentSeason()
 
