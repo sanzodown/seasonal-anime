@@ -98,21 +98,21 @@ export function AnimeCard({ anime }: AnimeCardProps) {
           )}
         </div>
         <CardContent className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <div className="space-y-3 text-white">
-            <h2 className="text-2xl font-bold leading-tight line-clamp-2 drop-shadow-lg">
+          <div className="space-y-2 text-white">
+            <h2 className="text-lg font-bold leading-tight line-clamp-2 drop-shadow-lg">
               {anime.title}
             </h2>
             {anime.status === 'Currently Airing' && anime.broadcast?.day && anime.broadcast?.time && (
-              <p className="text-sm font-medium text-green-400">
+              <p className="text-xs font-medium text-green-400">
                 Next episode: {formatBroadcastTime(anime.broadcast.day, anime.broadcast.time)}
               </p>
             )}
             {anime.status === 'Not yet aired' && (
-              <p className="text-sm font-medium text-yellow-400">
+              <p className="text-xs font-medium text-yellow-400">
                 Starts: {formatAiredDate(anime.aired)}
               </p>
             )}
-            <p className="text-sm leading-relaxed line-clamp-4 text-gray-100/90 font-medium">
+            <p className="text-xs leading-relaxed line-clamp-3 text-gray-100/90 font-medium">
               {anime.synopsis}
             </p>
           </div>
