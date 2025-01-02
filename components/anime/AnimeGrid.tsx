@@ -24,7 +24,7 @@ export function AnimeGrid({
   isLoadingMore,
   onLoadMore
 }: AnimeGridProps) {
-  const infiniteScrollRef = useInfiniteScroll({
+  const { ref, isNearEnd, hasMore, isLoadingMore: isNearLoading } = useInfiniteScroll({
     onLoadMore: () => onLoadMore?.(),
     isLoading: isLoadingMore || false,
     hasNextPage: pagination?.has_next_page || false,
@@ -76,22 +76,32 @@ export function AnimeGrid({
         ))}
       </div>
 
-      {/* Infinite scroll trigger element */}
+      {/* Infinite scroll trigger */}
       <div
-        ref={infiniteScrollRef}
+        ref={ref}
         className="h-1 w-full"
         aria-hidden="true"
       />
 
-      {/* Loading indicator */}
-      {isLoadingMore && (
-        <div className="flex justify-center py-4">
+      {/* Loading and pagination status */}
+      <div className="flex justify-center py-4">
+        {isLoadingMore && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin" />
-            Loading more...
+            Loading more anime...
           </div>
-        </div>
-      )}
+        )}
+        {!isLoadingMore && hasMore && (
+          <div className="text-sm text-muted-foreground">
+            {isNearEnd ? "Loading more anime soon..." : `${pagination?.items.total || 'More'} anime available`}
+          </div>
+        )}
+        {!isLoadingMore && !hasMore && animeList.length > 0 && (
+          <div className="text-sm text-muted-foreground">
+            You've reached the end
+          </div>
+        )}
+      </div>
     </div>
   )
 }
