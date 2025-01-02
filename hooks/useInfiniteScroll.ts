@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 interface UseInfiniteScrollOptions {
     onLoadMore: () => void
@@ -14,54 +14,45 @@ export function useInfiniteScroll({
     isLoading,
     hasNextPage,
     threshold = 0.1,
-    rootMargin = '400px',
-    debounceMs = 500
+    rootMargin = '200px',
+    debounceMs = 200
 }: UseInfiniteScrollOptions) {
     const observerRef = useRef<HTMLDivElement>(null)
     const lastCallTime = useRef(0)
-    const isScrolling = useRef(false)
+    const observer = useRef<IntersectionObserver | null>(null)
+
+    const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
+        const entry = entries[0]
+        if (!entry.isIntersecting || isLoading || !hasNextPage) return
+
+        const now = Date.now()
+        if (now - lastCallTime.current >= debounceMs) {
+            lastCallTime.current = now
+            onLoadMore()
+        }
+    }, [onLoadMore, isLoading, hasNextPage, debounceMs])
 
     useEffect(() => {
-        const currentObserver = observerRef.current
-        if (!currentObserver || isLoading || !hasNextPage) return
+        const currentElement = observerRef.current
+        if (!currentElement) return
 
-        let scrollTimer: number | undefined
-
-        const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-            if (entries[0].isIntersecting && !isScrolling.current) {
-                isScrolling.current = true
-
-                if (scrollTimer) {
-                    clearTimeout(scrollTimer)
-                }
-
-                scrollTimer = setTimeout(() => {
-                    const now = Date.now()
-                    if (now - lastCallTime.current >= debounceMs) {
-                        lastCallTime.current = now
-                        onLoadMore()
-                    }
-                    isScrolling.current = false
-                }, 150) as unknown as number
-            }
+        if (observer.current) {
+            observer.current.disconnect()
         }
 
-        const observer = new IntersectionObserver(handleIntersection, {
+        observer.current = new IntersectionObserver(handleIntersection, {
             threshold,
             rootMargin,
         })
 
-        observer.observe(currentObserver)
+        observer.current.observe(currentElement)
 
         return () => {
-            if (currentObserver) {
-                observer.unobserve(currentObserver)
-            }
-            if (scrollTimer) {
-                clearTimeout(scrollTimer)
+            if (observer.current) {
+                observer.current.disconnect()
             }
         }
-    }, [onLoadMore, isLoading, hasNextPage, threshold, rootMargin, debounceMs])
+    }, [handleIntersection, threshold, rootMargin])
 
     return observerRef
 }
