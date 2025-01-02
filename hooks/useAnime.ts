@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Anime, AnimeResponse, Pagination } from '@/types/anime'
 
-const RETRY_DELAY = 1000 // 1 second
+const RETRY_DELAY = 1000
 const MAX_RETRIES = 3
 const RATE_LIMIT_MESSAGE = 'Rate limit reached. Please wait a moment before trying again.'
 
@@ -17,15 +17,12 @@ interface ErrorResponse {
 }
 
 function isRelevantToSeason(anime: Anime, targetSeason: string, targetYear: number): boolean {
-  // If the anime has explicit season and year, check if they match
   if (anime.season && anime.year) {
     return anime.season.toLowerCase() === targetSeason.toLowerCase() &&
       anime.year === targetYear
   }
 
-  // If the anime is not yet aired, check its aired.from date
   if (anime.status === 'Not yet aired' && anime.aired.prop.from.year && anime.aired.prop.from.month) {
-    // Skip anime with placeholder dates (usually set to January 1st)
     if (anime.aired.prop.from.month === 1 && anime.aired.prop.from.day === 1) {
       return false
     }
@@ -33,7 +30,6 @@ function isRelevantToSeason(anime: Anime, targetSeason: string, targetYear: numb
     const month = anime.aired.prop.from.month
     let season = ''
 
-    // Convert month to season
     if (month >= 1 && month <= 3) season = 'winter'
     else if (month >= 4 && month <= 6) season = 'spring'
     else if (month >= 7 && month <= 9) season = 'summer'
@@ -43,14 +39,11 @@ function isRelevantToSeason(anime: Anime, targetSeason: string, targetYear: numb
       anime.aired.prop.from.year === targetYear
   }
 
-  // For currently airing shows without season data, check if they started airing
-  // within the target season's timeframe
   if (anime.status === 'Currently Airing' && anime.aired.from) {
     const airDate = new Date(anime.aired.from)
     const year = airDate.getFullYear()
     const month = airDate.getMonth() + 1
 
-    // Skip anime with placeholder dates
     if (month === 1 && airDate.getDate() === 1) {
       return false
     }
@@ -65,6 +58,17 @@ function isRelevantToSeason(anime: Anime, targetSeason: string, targetYear: numb
   }
 
   return false
+}
+
+function deduplicateAnime(animeList: Anime[]): Anime[] {
+  const seen = new Map<number, Anime>()
+  const uniqueAnime = animeList.filter(anime => {
+    if (!anime.mal_id) return false
+    if (seen.has(anime.mal_id)) return false
+    seen.set(anime.mal_id, anime)
+    return true
+  })
+  return uniqueAnime
 }
 
 export function useAnime(season: string, year: number) {
@@ -121,22 +125,23 @@ export function useAnime(season: string, year: number) {
 
       const responseData = await response.json()
 
-      // Check if the response is an error response
       if ('error' in responseData) {
         const errorResponse = responseData as ErrorResponse
         throw new Error(errorResponse.error)
       }
 
-      // Now we know it's an AnimeResponse
       const data = responseData as AnimeResponse
       const tvAnime = data.data
-        ?.filter((anime: Anime) => anime.type === 'TV')
+        ?.filter((anime: Anime) => anime.type === 'TV' && anime.mal_id)
         ?.filter(anime => isRelevantToSeason(anime, season, year)) || []
 
       if (isLoadMore) {
-        setAnimeList(prev => [...prev, ...tvAnime])
+        setAnimeList(prev => {
+          const combined = [...prev, ...tvAnime]
+          return deduplicateAnime(combined)
+        })
       } else {
-        setAnimeList(tvAnime)
+        setAnimeList(deduplicateAnime(tvAnime))
       }
 
       setPagination(data.pagination)
