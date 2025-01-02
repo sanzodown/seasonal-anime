@@ -28,7 +28,7 @@ export function AnimeGrid({
     onLoadMore: () => onLoadMore?.(),
     isLoading: isLoadingMore || false,
     hasNextPage: pagination?.has_next_page || false,
-    rootMargin: '200px'
+    rootMargin: '500px'
   })
 
   if (isLoading) {
@@ -66,7 +66,7 @@ export function AnimeGrid({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {animeList.map((anime, index) => (
           <AnimeCard
@@ -76,24 +76,24 @@ export function AnimeGrid({
         ))}
       </div>
 
-      {/* Infinite scroll trigger */}
-      <div
-        ref={ref}
-        className="h-1 w-full"
-        aria-hidden="true"
-      />
-
       {/* Loading and pagination status */}
-      <div className="flex justify-center py-4">
+      <div className="flex flex-col items-center justify-center gap-2 min-h-[60px] relative">
+        {/* Infinite scroll trigger */}
+        <div
+          ref={ref}
+          className="absolute left-0 right-0 h-[300px] -top-[200px] pointer-events-none"
+          aria-hidden="true"
+        />
+
         {isLoadingMore && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin" />
             Loading more anime...
           </div>
         )}
-        {!isLoadingMore && hasMore && (
+        {!isLoadingMore && hasMore && pagination?.items.total && (
           <div className="text-sm text-muted-foreground">
-            {isNearEnd ? "Loading more anime soon..." : `${pagination?.items.total || 'More'} anime available`}
+            Showing {animeList.length} of {pagination.items.total} anime
           </div>
         )}
         {!isLoadingMore && !hasMore && animeList.length > 0 && (

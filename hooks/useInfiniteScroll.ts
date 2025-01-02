@@ -6,7 +6,6 @@ interface UseInfiniteScrollOptions {
     hasNextPage: boolean
     threshold?: number
     rootMargin?: string
-    debounceMs?: number
 }
 
 interface UseInfiniteScrollResult {
@@ -20,44 +19,21 @@ export function useInfiniteScroll({
     onLoadMore,
     isLoading,
     hasNextPage,
-    threshold = 0.1,
-    rootMargin = '400px',
-    debounceMs = 100
+    threshold = 0,
+    rootMargin = '500px',
 }: UseInfiniteScrollOptions): UseInfiniteScrollResult {
     const observerRef = useRef<HTMLDivElement>(null)
-    const lastCallTime = useRef(0)
     const observer = useRef<IntersectionObserver | null>(null)
     const isNearEndRef = useRef(false)
-    const loadingQueueRef = useRef<NodeJS.Timeout | null>(null)
 
     const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
         const entry = entries[0]
-        const wasNearEnd = isNearEndRef.current
         isNearEndRef.current = entry.isIntersecting
 
-        if (loadingQueueRef.current) {
-            clearTimeout(loadingQueueRef.current)
-            loadingQueueRef.current = null
-        }
-
-        if (isLoading || !hasNextPage) return
-
-        const now = Date.now()
-        const timeSinceLastCall = now - lastCallTime.current
-
-        if (entry.isIntersecting && timeSinceLastCall >= debounceMs) {
-            lastCallTime.current = now
+        if (entry.isIntersecting && !isLoading && hasNextPage) {
             onLoadMore()
         }
-        else if (entry.isIntersecting && !wasNearEnd) {
-            loadingQueueRef.current = setTimeout(() => {
-                if (isNearEndRef.current) {
-                    lastCallTime.current = Date.now()
-                    onLoadMore()
-                }
-            }, Math.max(0, debounceMs - timeSinceLastCall))
-        }
-    }, [onLoadMore, isLoading, hasNextPage, debounceMs])
+    }, [onLoadMore, isLoading, hasNextPage])
 
     useEffect(() => {
         const currentElement = observerRef.current
@@ -77,9 +53,6 @@ export function useInfiniteScroll({
         return () => {
             if (observer.current) {
                 observer.current.disconnect()
-            }
-            if (loadingQueueRef.current) {
-                clearTimeout(loadingQueueRef.current)
             }
         }
     }, [handleIntersection, threshold, rootMargin])
