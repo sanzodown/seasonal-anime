@@ -60,7 +60,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
   return (
     <>
       <Card
-        className="group relative overflow-hidden transition-all duration-300 ease-in-out transform h-[500px]
+        className="group relative overflow-hidden transition-all duration-300 ease-in-out transform h-[420px]
           hover:scale-[1.02] hover:shadow-xl hover:shadow-white/25
           hover:backdrop-blur-sm hover:border-2 hover:border-white/50
           bg-white dark:bg-gray-800 cursor-pointer"
@@ -74,22 +74,22 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             alt={anime.title}
             className="w-full h-full object-cover transition-all duration-300 scale-[1.15] group-hover:scale-100 group-hover:blur-[5px]"
             loading="lazy"
-            width={500}
-            height={300}
+            width={400}
+            height={240}
             style={{ objectFit: 'cover' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(anime.status)}`}>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(anime.status)}`}>
               {getStatusText(anime.status)}
             </span>
           </div>
           {anime.streaming && anime.streaming.length > 0 && (
-            <div className="absolute top-3 left-3 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {anime.streaming.map((stream, index) => (
                 <span
                   key={index}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium text-white ${getStreamingColor(stream.name)}`}
+                  className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getStreamingColor(stream.name)}`}
                 >
                   {stream.name}
                 </span>
@@ -97,7 +97,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             </div>
           )}
         </div>
-        <CardContent className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+        <CardContent className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <div className="space-y-3 text-white">
             <h2 className="text-2xl font-bold leading-tight line-clamp-2 drop-shadow-lg">
               {anime.title}
