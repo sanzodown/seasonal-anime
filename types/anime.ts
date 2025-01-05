@@ -41,6 +41,7 @@ export interface Aired {
 export interface Anime {
   mal_id: number
   title: string
+  title_english: string | null
   type: string
   images: {
     jpg: {

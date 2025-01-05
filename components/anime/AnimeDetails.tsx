@@ -127,7 +127,12 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
 
           {/* Right Column - Content */}
           <div className="p-6 overflow-y-auto h-[40vh] md:h-full">
-            <h2 className="text-3xl font-bold mb-4 text-white">{anime.title}</h2>
+            <h2 className="text-3xl font-bold mb-1 text-white">
+              {anime.title_english || anime.title}
+            </h2>
+            {anime.title_english && anime.title_english !== anime.title && (
+              <h3 className="text-xl text-gray-400 mb-4">{anime.title}</h3>
+            )}
 
             {/* Status and Episodes */}
             <div className="flex flex-wrap gap-2 mb-6">
