@@ -8,8 +8,11 @@ import { useAnime } from '@/hooks/useAnime'
 import { getCurrentSeason } from '@/lib/utils'
 
 export default function SeasonalAnimePage() {
-  const [season, setSeason] = useState(getCurrentSeason())
-  const [year, setYear] = useState(new Date().getFullYear())
+  const currentSeason = getCurrentSeason()
+  const currentYear = new Date().getFullYear()
+  const [season, setSeason] = useState(currentSeason)
+  const [year, setYear] = useState(currentYear)
+
   const {
     animeList,
     isLoading,
