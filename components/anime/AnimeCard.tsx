@@ -91,12 +91,14 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             height={240}
             style={{ objectFit: 'cover' }}
           />
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <Button
               variant="ghost"
               size="icon"
-              className="bg-white/10 hover:bg-white/20"
+              className="bg-black/30 hover:bg-black/50"
               onClick={handleBookmarkClick}
             >
               {isBookmarked(anime.mal_id) ? (
@@ -105,12 +107,16 @@ export function AnimeCard({ anime }: AnimeCardProps) {
                 <Bookmark className="h-5 w-5 text-white" />
               )}
             </Button>
+          </div>
+
+          <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(anime.status)}`}>
               {getStatusText(anime.status)}
             </span>
           </div>
+
           {anime.streaming && anime.streaming.length > 0 && (
-            <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute top-12 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {anime.streaming.map((stream, index) => (
                 <span
                   key={index}
