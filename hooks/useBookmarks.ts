@@ -6,28 +6,15 @@ const BOOKMARKS_KEY = 'anime-bookmarks-ids'
 const BOOKMARK_DATA_PREFIX = 'anime-data-'
 const COOKIE_EXPIRY = 365 // Expiration en jours
 
-// Propriétés minimales nécessaires pour l'affichage des cartes
-interface MinimalAnime {
-  mal_id: number
-  title: string
-  title_english: string | null
-  type: string
-  status: string
-  images: {
-    jpg: {
-      image_url: string
-      large_image_url?: string
-    }
-  }
-  synopsis: string
-  aired: Anime['aired']
-  broadcast?: Anime['broadcast']
-  streaming?: Anime['streaming']
+// Assurez-vous que ce type inclut toutes les propriétés requises par AnimeCard
+interface BookmarkedAnime extends Anime {
+  // On garde le type Anime complet pour assurer la compatibilité
 }
 
-// Fonction pour réduire la taille des données d'anime
-function minimizeAnime(anime: Anime): MinimalAnime {
-  return {
+// Fonction pour minimiser les données tout en gardant les champs requis
+function minimizeAnime(anime: Anime): BookmarkedAnime {
+  // Propriétés obligatoires pour AnimeCard
+  const minimalAnime: BookmarkedAnime = {
     mal_id: anime.mal_id,
     title: anime.title,
     title_english: anime.title_english,
@@ -36,13 +23,18 @@ function minimizeAnime(anime: Anime): MinimalAnime {
     images: anime.images,
     synopsis: anime.synopsis,
     aired: anime.aired,
-    broadcast: anime.broadcast,
-    streaming: anime.streaming
-  }
+    broadcast: anime.broadcast || { day: '', time: '' },
+    url: anime.url || '',
+    trailer: anime.trailer || { youtube_id: '', url: '', embed_url: '' },
+    studios: anime.studios || [],
+    streaming: anime.streaming || []
+  };
+
+  return minimalAnime;
 }
 
 export function useBookmarks() {
-  const [bookmarks, setBookmarks] = useState<MinimalAnime[]>([])
+  const [bookmarks, setBookmarks] = useState<BookmarkedAnime[]>([])
 
   // Charge tous les favoris au démarrage
   useEffect(() => {
@@ -52,7 +44,7 @@ export function useBookmarks() {
 
     try {
       const ids: number[] = JSON.parse(idsString)
-      const loadedBookmarks: MinimalAnime[] = []
+      const loadedBookmarks: BookmarkedAnime[] = []
 
       // Récupérer les données pour chaque ID
       ids.forEach(id => {
