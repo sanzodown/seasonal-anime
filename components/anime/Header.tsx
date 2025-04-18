@@ -1,4 +1,8 @@
 import { getCurrentSeason } from '@/lib/utils'
+import Link from 'next/link'
+import { Bookmark } from 'lucide-react'
+import { useBookmarks } from '@/hooks/useBookmarks'
+import { Badge } from '@/components/ui/badge'
 
 interface HeaderProps {
   onSeasonChange: (season: string) => void
@@ -8,6 +12,7 @@ interface HeaderProps {
 export function Header({ onSeasonChange, onYearChange }: HeaderProps) {
   const currentSeason = getCurrentSeason()
   const currentYear = new Date().getFullYear()
+  const { bookmarks } = useBookmarks()
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -40,6 +45,18 @@ export function Header({ onSeasonChange, onYearChange }: HeaderProps) {
           Pewpewlazer&apos;s seasonal anime
         </h1>
       </a>
+      <Link
+        href="/bookmarks"
+        className="flex items-center gap-2 text-white/80 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5 relative"
+      >
+        <Bookmark className="h-5 w-5" />
+        <span className="font-medium">Bookmarks</span>
+        {bookmarks.length > 0 && (
+          <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-black ml-1">
+            {bookmarks.length}
+          </Badge>
+        )}
+      </Link>
     </header>
   )
 }

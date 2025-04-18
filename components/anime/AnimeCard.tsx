@@ -4,6 +4,9 @@ import { Anime } from "@/types/anime"
 import { AnimeDetails } from './AnimeDetails'
 import Image from 'next/image'
 import { formatBroadcastTime, formatAiredDate } from '@/lib/utils'
+import { useBookmarks } from '@/hooks/useBookmarks'
+import { Button } from '@/components/ui/button'
+import { Bookmark, BookmarkCheck } from 'lucide-react'
 
 interface AnimeCardProps {
   anime: Anime
@@ -11,6 +14,16 @@ interface AnimeCardProps {
 
 export function AnimeCard({ anime }: AnimeCardProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const { addBookmark, removeBookmark, isBookmarked } = useBookmarks()
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isBookmarked(anime.mal_id)) {
+      removeBookmark(anime.mal_id)
+    } else {
+      addBookmark(anime)
+    }
+  }
 
   const getStreamingColor = (name: string) => {
     switch (name.toLowerCase()) {
@@ -79,7 +92,19 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             style={{ objectFit: 'cover' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="bg-white/10 hover:bg-white/20"
+              onClick={handleBookmarkClick}
+            >
+              {isBookmarked(anime.mal_id) ? (
+                <BookmarkCheck className="h-5 w-5 text-yellow-400" />
+              ) : (
+                <Bookmark className="h-5 w-5 text-white" />
+              )}
+            </Button>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(anime.status)}`}>
               {getStatusText(anime.status)}
             </span>
