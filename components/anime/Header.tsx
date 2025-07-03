@@ -41,7 +41,7 @@ export function Header({ onSeasonChange, onYearChange }: HeaderProps) {
           <circle cx="18" cy="20" r="2" fill="white" />
           <circle cx="30" cy="20" r="2" fill="white" />
         </svg>
-        <h1 className="text-3xl font-bold text-white font-geist-mono tracking-tight bg-gradient-to-r from-purple-500/80 to-purple-700/80 bg-clip-text text-transparent transition-all group-hover:from-purple-600/80 group-hover:to-purple-800/80">
+        <h1 className="text-xl md:text-3xl font-bold text-white font-geist-mono tracking-tight bg-gradient-to-r from-purple-500/80 to-purple-700/80 bg-clip-text text-transparent transition-all group-hover:from-purple-600/80 group-hover:to-purple-800/80">
           Pewpewlazer&apos;s seasonal anime
         </h1>
       </a>
@@ -50,7 +50,7 @@ export function Header({ onSeasonChange, onYearChange }: HeaderProps) {
         className="flex items-center gap-2 text-white/80 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5 relative"
       >
         <Bookmark className="h-5 w-5" />
-        <span className="font-medium">Bookmarks</span>
+        <span className="font-medium hidden md:inline">Bookmarks</span>
         {bookmarks.length > 0 && (
           <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-black ml-1">
             {bookmarks.length}

@@ -92,9 +92,9 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             style={{ objectFit: 'cover' }}
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 md:opacity-0 md:group-hover:opacity-100" />
 
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 md:opacity-0 md:group-hover:opacity-100">
             <Button
               variant="ghost"
               size="icon"
@@ -109,14 +109,14 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             </Button>
           </div>
 
-          <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+          <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 md:opacity-0 md:group-hover:opacity-100">
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(anime.status)}`}>
               {getStatusText(anime.status)}
             </span>
           </div>
 
           {anime.streaming && anime.streaming.length > 0 && (
-            <div className="absolute top-12 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute top-12 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100">
               {anime.streaming.map((stream, index) => (
                 <span
                   key={index}
@@ -128,7 +128,8 @@ export function AnimeCard({ anime }: AnimeCardProps) {
             </div>
           )}
         </div>
-        <CardContent className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
           <div className="space-y-2 text-white">
             <h2 className="text-lg font-bold leading-tight line-clamp-2 drop-shadow-lg">
               {anime.title_english || anime.title}
@@ -148,11 +149,11 @@ export function AnimeCard({ anime }: AnimeCardProps) {
                 Starts: {formatAiredDate(anime.aired)}
               </p>
             )}
-            <p className="text-xs leading-relaxed line-clamp-3 text-gray-100/90 font-medium">
+            <p className="text-xs leading-relaxed line-clamp-3 text-gray-100/90 font-medium hidden md:block">
               {anime.synopsis}
             </p>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
       <AnimeDetails

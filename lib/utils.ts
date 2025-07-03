@@ -138,3 +138,18 @@ export function formatSeasonStart(season: string, year: number): string {
   const monthName = getMonthName(monthNumber)
   return `${monthName} ${year}`
 }
+
+export function getMaxAllowedDate(): { year: number; season: string } {
+  const now = new Date()
+  const seasons = ['winter', 'spring', 'summer', 'fall']
+  const month = now.getMonth() + 1
+  let currentSeasonIndex = 0
+  if (month >= 1 && month <= 3) currentSeasonIndex = 0
+  else if (month >= 4 && month <= 6) currentSeasonIndex = 1
+  else if (month >= 7 && month <= 9) currentSeasonIndex = 2
+  else currentSeasonIndex = 3
+  const currentYear = now.getFullYear()
+  let limitSeasonIndex = (currentSeasonIndex + 2) % 4
+  let limitYear = currentYear + Math.floor((currentSeasonIndex + 2) / 4)
+  return { year: limitYear, season: seasons[limitSeasonIndex] }
+}

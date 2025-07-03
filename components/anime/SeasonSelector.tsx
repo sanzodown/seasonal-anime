@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useEffect, useMemo, useCallback, useState } from "react"
-import { getCurrentSeason } from "@/lib/utils"
+import { getCurrentSeason, getMaxAllowedDate } from "@/lib/utils"
 
 interface SeasonSelectorProps {
   season: string
@@ -17,41 +17,27 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
   const currentSeason = getCurrentSeason()
   const [message, setMessage] = useState<string>('')
 
-  const getMaxYear = useCallback(() => {
-    const currentSeasonIndex = seasons.indexOf(currentSeason)
-    if (currentSeasonIndex >= seasons.length - 2) {
-      return currentYear
-    }
-    return currentYear + 1
-  }, [currentYear, currentSeason, seasons])
+  const { year: maxYear, season: maxSeason } = getMaxAllowedDate()
+  const maxSeasonIndex = seasons.indexOf(maxSeason)
 
   const allYears = useMemo(() => {
     return Array.from(
-      { length: currentYear - 2010 + 1 },
+      { length: (maxYear + 1) - 2010 },
       (_, i) => 2010 + i
     )
-  }, [currentYear])
+  }, [maxYear])
 
   const currentSeasonIndex = seasons.indexOf(season)
   const currentYearIndex = allYears.indexOf(year)
 
-  const getFutureSeasons = useCallback((targetSeason: string, targetYear: number) => {
-    let count = 0
-    let tempYear = currentYear
-    let tempSeason = currentSeason
-
-    while (tempYear < targetYear || (tempYear === targetYear && seasons.indexOf(tempSeason) < seasons.indexOf(targetSeason))) {
-      count++
-      if (seasons.indexOf(tempSeason) === seasons.length - 1) {
-        tempYear++
-        tempSeason = seasons[0]
-      } else {
-        tempSeason = seasons[seasons.indexOf(tempSeason) + 1]
-      }
+  const isDateAllowed = useCallback((targetSeason: string, targetYear: number): boolean => {
+    if (targetYear > maxYear) return false
+    if (targetYear === maxYear) {
+      const targetSeasonIndex = seasons.indexOf(targetSeason)
+      return targetSeasonIndex <= maxSeasonIndex
     }
-
-    return count
-  }, [currentYear, currentSeason, seasons])
+    return true
+  }, [maxYear, maxSeasonIndex, seasons])
 
   const handleNavigate = useCallback((direction: 'prev' | 'next') => {
     if (direction === 'prev') {
@@ -67,28 +53,16 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
     } else {
       const nextSeason = currentSeasonIndex === seasons.length - 1 ? seasons[0] : seasons[currentSeasonIndex + 1]
       const nextYear = currentSeasonIndex === seasons.length - 1 ? year + 1 : year
-      const maxYear = getMaxYear()
 
-      if (nextYear > maxYear || (nextYear === maxYear && nextSeason !== seasons[0])) {
-        setMessage('Cannot view more than 2 seasons in the future')
-        return
-      }
-
-      const futureSeasons = getFutureSeasons(nextSeason, nextYear)
-      if (futureSeasons > 2) {
-        setMessage('Cannot view more than 2 seasons in the future')
-        return
-      }
-
-      if (currentSeasonIndex === seasons.length - 1) {
-        onSeasonChange(seasons[0])
-        onYearChange(nextYear)
+      onSeasonChange(nextSeason)
+      onYearChange(nextYear)
+      if (!isDateAllowed(nextSeason, nextYear)) {
+        setMessage('Cannot view beyond current date + 2 months')
       } else {
-        onSeasonChange(seasons[currentSeasonIndex + 1])
+        setMessage('')
       }
-      setMessage('')
     }
-  }, [currentSeasonIndex, currentYearIndex, year, onSeasonChange, onYearChange, seasons, getFutureSeasons, getMaxYear])
+  }, [currentSeasonIndex, currentYearIndex, year, onSeasonChange, onYearChange, seasons, isDateAllowed])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -101,23 +75,19 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
   }, [season, year, handleNavigate])
 
   useEffect(() => {
-    const futureSeasons = getFutureSeasons(season, year)
-    if (futureSeasons > 2) {
-      const maxYear = getMaxYear()
-      if (year > maxYear) {
-        onYearChange(maxYear)
-        onSeasonChange(seasons[0])
-      }
+    const isAfterLimit = (year > maxYear) || (year === maxYear && seasons.indexOf(season) > maxSeasonIndex)
+    if (isAfterLimit) {
+      setMessage('Cannot view beyond current date + 2 months')
+    } else {
+      setMessage('')
     }
-  }, [season, year, getFutureSeasons, getMaxYear, seasons, onYearChange, onSeasonChange])
+  }, [year, season, maxYear, maxSeasonIndex, seasons])
 
   const visibleYears = useMemo(() => {
-    const maxYear = getMaxYear()
-    const validYears = allYears.filter(y => y <= maxYear)
-    const yearIndex = validYears.indexOf(year)
-    const start = Math.max(0, Math.min(yearIndex - 2, validYears.length - 5))
-    return validYears.slice(start, Math.min(start + 5, validYears.length))
-  }, [allYears, year, getMaxYear])
+    const yearIndex = allYears.indexOf(year)
+    const start = Math.max(0, Math.min(yearIndex - 2, allYears.length - 5))
+    return allYears.slice(start, Math.min(start + 5, allYears.length))
+  }, [allYears, year])
 
   return (
     <div className="flex flex-col items-center gap-6 mb-8">
@@ -143,9 +113,8 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
             <Button
               key={s}
               onClick={() => {
-                const futureSeasons = getFutureSeasons(s, year)
-                if (futureSeasons > 2) {
-                  setMessage('Cannot view more than 2 seasons in the future')
+                if (!isDateAllowed(s, year)) {
+                  setMessage('Cannot view beyond current date + 2 months')
                   return
                 }
                 onSeasonChange(s)
@@ -196,9 +165,8 @@ export function SeasonSelector({ season, year, onSeasonChange, onYearChange }: S
             <Button
               key={yearValue}
               onClick={() => {
-                const futureSeasons = getFutureSeasons(season, yearValue)
-                if (futureSeasons > 2) {
-                  setMessage('Cannot view more than 2 seasons in the future')
+                if (!isDateAllowed(season, yearValue)) {
+                  setMessage('Cannot view beyond current date + 2 months')
                   return
                 }
                 onYearChange(yearValue)
