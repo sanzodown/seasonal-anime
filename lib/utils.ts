@@ -149,7 +149,7 @@ export function getMaxAllowedDate(): { year: number; season: string } {
   else if (month >= 7 && month <= 9) currentSeasonIndex = 2
   else currentSeasonIndex = 3
   const currentYear = now.getFullYear()
-  let limitSeasonIndex = (currentSeasonIndex + 2) % 4
-  let limitYear = currentYear + Math.floor((currentSeasonIndex + 2) / 4)
+  const limitSeasonIndex = (currentSeasonIndex + 2) % 4
+  const limitYear = currentYear + Math.floor((currentSeasonIndex + 2) / 4)
   return { year: limitYear, season: seasons[limitSeasonIndex] }
 }

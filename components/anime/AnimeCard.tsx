@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Anime } from "@/types/anime"
 import { AnimeDetails } from './AnimeDetails'
 import Image from 'next/image'
