@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Anime } from "@/types/anime"
 import { AnimeDetails } from './AnimeDetails'
 import Image from 'next/image'
-import { formatBroadcastTime, formatAiredDate } from '@/lib/utils'
+import { formatBroadcastTime, formatAiredDate, truncateText } from '@/lib/utils'
 import { useBookmarks } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { Bookmark, BookmarkCheck } from 'lucide-react'
@@ -150,7 +150,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
               </p>
             )}
             <p className="text-xs leading-relaxed line-clamp-3 text-gray-100/90 font-medium hidden md:block">
-              {anime.synopsis}
+              {truncateText(anime.synopsis, 150)}
             </p>
           </div>
         </div>
