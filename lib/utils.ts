@@ -153,3 +153,8 @@ export function getMaxAllowedDate(): { year: number; season: string } {
   const limitYear = currentYear + Math.floor((currentSeasonIndex + 2) / 4)
   return { year: limitYear, season: seasons[limitSeasonIndex] }
 }
+
+export function truncateText(text: string, maxLength: number): string {
+  if (!text || text.length <= maxLength) return text
+  return text.slice(0, maxLength).trim() + '...'
+}
