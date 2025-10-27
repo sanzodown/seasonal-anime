@@ -25,7 +25,7 @@ function minimizeAnime(anime: Anime): BookmarkedAnime {
     aired: anime.aired,
     broadcast: anime.broadcast || { day: '', time: '' },
     url: anime.url || '',
-    trailer: anime.trailer || { youtube_id: '', url: '', embed_url: '' },
+    trailer: anime.trailer || null,
     studios: anime.studios || [],
     streaming: anime.streaming || []
   };

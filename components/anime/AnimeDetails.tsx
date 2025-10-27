@@ -1,6 +1,6 @@
 "use client"
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Anime } from "@/types/anime"
 import { useStreamingData } from "@/hooks/useStreamingData"
 import { useEffect, useRef, useState } from "react"
@@ -66,6 +66,20 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const hasFetched = useRef(false)
 
+  // Extract YouTube ID from embed_url if youtube_id is null
+  const getYouTubeId = () => {
+    if (anime.trailer?.youtube_id) {
+      return anime.trailer.youtube_id
+    }
+    if (anime.trailer?.embed_url) {
+      const match = anime.trailer.embed_url.match(/\/embed\/([a-zA-Z0-9_-]+)/)
+      return match ? match[1] : null
+    }
+    return null
+  }
+
+  const youtubeId = getYouTubeId()
+
   useEffect(() => {
     if (isOpen && !hasFetched.current && !streamingData[anime.title]) {
       hasFetched.current = true
@@ -87,6 +101,9 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
         <DialogTitle className="sr-only">
           {anime.title} Details
         </DialogTitle>
+        <DialogDescription className="sr-only">
+          Detailed information about {anime.title} including synopsis, streaming availability, and trailer
+        </DialogDescription>
         <div className="grid grid-cols-1 md:grid-cols-2 h-[80vh] md:h-[90vh]">
           {/* Left Column - Image and Trailer Button */}
           <div className="relative h-full overflow-hidden">
@@ -108,7 +125,7 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
               <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/20 to-black backdrop-blur-[2px]" />
             </div>
 
-            {anime.trailer?.youtube_id && (
+            {youtubeId && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <Button
                   onClick={() => setIsVideoOpen(true)}
@@ -190,11 +207,11 @@ export function AnimeDetails({ anime, isOpen, onClose }: AnimeDetailsProps) {
         </div>
       </DialogContent>
 
-      {anime.trailer?.youtube_id && (
+      {youtubeId && (
         <VideoPlayer
           isOpen={isVideoOpen}
           onClose={() => setIsVideoOpen(false)}
-          youtubeId={anime.trailer.youtube_id}
+          youtubeId={youtubeId}
         />
       )}
     </Dialog>
